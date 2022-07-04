@@ -11,7 +11,9 @@ pnpm dev
 ```
 
 ## TODO
-- [ ] automatically reconnection
+- [x] basic events
+- [ ] readonly states
+- [x] automatically reconnection
 - [ ] developer logger
 - [ ] heartbeat
 - [ ] authentication
