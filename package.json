@@ -2,7 +2,8 @@
   "name": "@honeycomb/websocket",
   "version": "0.0.1",
   "scripts": {
-    "dev": "vite dev"
+    "dev": "vite dev",
+    "test": "vitest"
   },
   "author": "",
   "license": "Apache License 2.0",
@@ -14,6 +15,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.1",
+    "jsdom": "^20.0.0",
     "lint-staged": "^13.0.3",
     "prettier": "^2.7.1",
     "typescript": "^4.7.4",
