@@ -14,7 +14,7 @@ pnpm dev
 - [x] basic events
 - [x] readonly states
 - [x] automatically reconnection
-- [ ] developer logger
+- [x] develop logger
 - [ ] heartbeat
 - [ ] authentication
 - [ ] encryption
