@@ -1,8 +1,7 @@
 export enum ConnectionState {
-    CONNECTING = 0, // CONNECTING  Socket has been created. The connection is not yet open.
-    OPEN = 1, // OPEN  The connection is open and ready to communicate.
-    CLOSING = 2, // CLOSING  The connection is in the process of closing.
-    CLOSED = 3, // CLOSED  The connection is closed or couldn't be opened.
+    CONNECTING = 'CONNECTING', // CONNECTING  The connection is not yet open.
+    OPEN = 'OPEN', // OPEN  The connection is open and ready to communicate.
+    CLOSED = 'CLOSED', // CLOSED  The connection is closed or couldn't be opened.
 }
 
 export type ConnectionEvent = 'open' | 'connecting' | 'reconnecting' | 'close'
@@ -12,7 +11,16 @@ export class Connection extends EventTarget {
     private ws: WebSocket
 
     public get state(): ConnectionState {
-        return this.ws.readyState as ConnectionState
+        if (this.ws.readyState === 0) {
+            return ConnectionState.CONNECTING
+        }
+        if (this.ws.readyState === 1) {
+            return ConnectionState.OPEN
+        }
+        if (this.ws.readyState === 2) {
+            return ConnectionState.CLOSED
+        }
+        return ConnectionState.CLOSED
     }
 
     constructor() {
@@ -61,7 +69,10 @@ export class Connection extends EventTarget {
         this.ws.close(code, Connection.INTERNAL_CLOSE + reason)
     }
 
-    public addEventListener(type: ConnectionEvent, callback: () => unknown) {
+    public addEventListener(
+        type: ConnectionEvent,
+        callback: (event: Event) => unknown
+    ) {
         super.addEventListener(type, callback)
     }
 

@@ -12,7 +12,7 @@ pnpm dev
 
 ## TODO
 - [x] basic events
-- [ ] readonly states
+- [x] readonly states
 - [x] automatically reconnection
 - [ ] developer logger
 - [ ] heartbeat
