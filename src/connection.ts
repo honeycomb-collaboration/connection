@@ -12,18 +12,10 @@ export class Connection extends EventTarget {
     private static readonly INTERNAL_CLOSE = 'INTERNAL_CLOSE'
     private static logger = new DevelopLogger()
     private ws: WebSocket
+    #state: ConnectionState = ConnectionState.CONNECTING
 
     public get state(): ConnectionState {
-        if (this.ws.readyState === 0) {
-            return ConnectionState.CONNECTING
-        }
-        if (this.ws.readyState === 1) {
-            return ConnectionState.OPEN
-        }
-        if (this.ws.readyState === 2) {
-            return ConnectionState.CLOSED
-        }
-        return ConnectionState.CLOSED
+        return this.#state
     }
 
     constructor() {
@@ -36,6 +28,7 @@ export class Connection extends EventTarget {
 
     private spawnWS(): WebSocket {
         Connection.logger.debug('Connection', 'spawn WebSocket')
+        this.#state = ConnectionState.CONNECTING
         const ws = new WebSocket(
             'wss://demo.piesocket.com/v3/channel_1?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self'
         )
@@ -47,7 +40,6 @@ export class Connection extends EventTarget {
         }
         ws.onclose = (evt) => {
             if (evt.reason.startsWith(Connection.INTERNAL_CLOSE)) {
-                this.dispatch('close')
                 return
             }
             Connection.logger.debug('WebSocket', 'close unintentionally', evt)
@@ -69,6 +61,8 @@ export class Connection extends EventTarget {
             code,
             reason,
         })
+        this.#state = ConnectionState.CLOSED
+        this.dispatch('close')
         this.ws.close(code, Connection.INTERNAL_CLOSE + reason)
     }
 
