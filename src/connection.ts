@@ -1,4 +1,5 @@
 import { DevelopLogger } from '@/logger'
+import { Heartbeat } from '@/heartbeat'
 
 export enum ConnectionState {
     CONNECTING = 'CONNECTING', // CONNECTING  The connection is not yet open.
@@ -51,9 +52,14 @@ export class Connection extends EventTarget {
             Connection.logger.debug('WebSocket', 'open', evt)
             this.reconnectCount = 0
             this.dispatch('open')
+            return Heartbeat(ws, Connection.logger)
         }
         this.ws = ws
         return ws
+    }
+
+    public send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void {
+        this.ws.send(data)
     }
 
     public close(code?: number, reason?: string): void {

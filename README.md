@@ -15,7 +15,7 @@ pnpm dev
 - [x] readonly states
 - [x] automatically reconnection
 - [x] develop logger
-- [ ] heartbeat
+- [x] heartbeat
 - [ ] authentication
 - [ ] encryption
 - [ ] gzip compression, payload compression using [Cap’n Proto] or [Protocol Buffers]
