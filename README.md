@@ -18,7 +18,8 @@ pnpm dev
 - [x] heartbeat
 - [ ] authentication
 - [ ] encryption
-- [ ] gzip compression, payload compression using [Cap’n Proto] or [Protocol Buffers]
+- [x] gzip compression
+- [ ] payload compression using [Cap’n Proto] or [Protocol Buffers]
 - [ ] live in a SharedWorker
 
 ---

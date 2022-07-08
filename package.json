@@ -9,6 +9,7 @@
   "license": "Apache License 2.0",
   "devDependencies": {
     "@types/node": "^18.0.0",
+    "@types/pako": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^5.30.0",
     "@typescript-eslint/parser": "^5.30.0",
     "eslint": "^8.18.0",
@@ -32,5 +33,8 @@
       "eslint --fix",
       "prettier --write"
     ]
+  },
+  "dependencies": {
+    "pako": "^2.0.4"
   }
 }

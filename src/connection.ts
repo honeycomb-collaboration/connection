@@ -1,5 +1,6 @@
 import { DevelopLogger } from '@/logger'
 import { Heartbeat } from '@/heartbeat'
+import { compress, decompress } from '@/compression'
 
 export enum ConnectionState {
     CONNECTING = 'CONNECTING', // CONNECTING  The connection is not yet open.
@@ -33,8 +34,10 @@ export class Connection extends EventTarget {
         const ws = new WebSocket(
             'wss://demo.piesocket.com/v3/channel_1?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self'
         )
+        ws.binaryType = 'arraybuffer'
         ws.onmessage = function (evt) {
-            Connection.logger.debug('WebSocket', 'message', evt)
+            const decompressed = decompress(evt.data)
+            Connection.logger.debug('WebSocket', 'message', evt, decompressed)
         }
         ws.onerror = function (error) {
             Connection.logger.error('WebSocket', 'error', error)
@@ -58,8 +61,9 @@ export class Connection extends EventTarget {
         return ws
     }
 
-    public send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void {
-        this.ws.send(data)
+    public send(data: string | Uint8Array | ArrayBuffer): void {
+        const compressed = compress(data)
+        this.ws.send(compressed)
     }
 
     public close(code?: number, reason?: string): void {
