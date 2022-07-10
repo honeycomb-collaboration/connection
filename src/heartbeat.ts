@@ -1,4 +1,4 @@
-import { HEARTBEAT_MESSAGE } from '@/constant'
+import { HEARTBEAT_INTERVAL, HEARTBEAT_MESSAGE } from '@/constant'
 import { DevelopLogger } from '@/logger'
 
 export function Heartbeat(websocket: WebSocket, logger?: DevelopLogger): void {
@@ -14,5 +14,5 @@ export function Heartbeat(websocket: WebSocket, logger?: DevelopLogger): void {
                 websocket.readyState
             )
         }
-    })
+    }, Math.trunc(HEARTBEAT_INTERVAL * (0.5 + Math.random())))
 }
