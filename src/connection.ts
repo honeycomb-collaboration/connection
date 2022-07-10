@@ -20,20 +20,18 @@ export class Connection extends EventTarget {
         return this.#state
     }
 
-    constructor() {
+    constructor(url: string | URL) {
         super()
         this.dispatch('connecting')
-        this.ws = this.spawnWS()
+        this.ws = this.spawnWS(url)
     }
 
     private reconnectCount = 0
 
-    private spawnWS(): WebSocket {
+    private spawnWS(url: string | URL): WebSocket {
         Connection.logger.debug('Connection', 'spawn WebSocket')
         this.#state = ConnectionState.CONNECTING
-        const ws = new WebSocket(
-            'wss://demo.piesocket.com/v3/channel_1?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self'
-        )
+        const ws = new WebSocket(url)
         ws.binaryType = 'arraybuffer'
         ws.onmessage = function (evt) {
             const decompressed = decompress(evt.data)
@@ -49,7 +47,7 @@ export class Connection extends EventTarget {
             Connection.logger.debug('WebSocket', 'close unintentionally', evt)
             this.reconnectCount++
             this.dispatch('reconnecting')
-            this.spawnWS()
+            this.spawnWS(url)
         }
         ws.onopen = (evt) => {
             Connection.logger.debug('WebSocket', 'open', evt)
