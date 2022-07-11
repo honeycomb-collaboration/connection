@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@types/node': ^18.0.0
   '@types/pako': ^2.0.0
+  '@types/sharedworker': ^0.0.77
   '@typescript-eslint/eslint-plugin': ^5.30.0
   '@typescript-eslint/parser': ^5.30.0
   eslint: ^8.18.0
@@ -23,6 +24,7 @@ dependencies:
 devDependencies:
   '@types/node': registry.npmmirror.com/@types/node/18.0.0
   '@types/pako': registry.npmmirror.com/@types/pako/2.0.0
+  '@types/sharedworker': registry.npmmirror.com/@types/sharedworker/0.0.77
   '@typescript-eslint/eslint-plugin': registry.npmmirror.com/@typescript-eslint/eslint-plugin/5.30.0_5mtqsiui4sk53pmkx7i7ue45wm
   '@typescript-eslint/parser': registry.npmmirror.com/@typescript-eslint/parser/5.30.0_b5e7v2qnwxfo6hmiq56u52mz3e
   eslint: registry.npmmirror.com/eslint/8.18.0
@@ -140,6 +142,12 @@ packages:
     resolution: {integrity: sha512-10+iaz93qR5WYxTo+PMifD5TSxiOtdRaxBf7INGGXMQgTCu8Z/7GYWYFUOS3q/G0nE5boj1r4FEB+WSy7s5gbA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/pako/-/pako-2.0.0.tgz}
     name: '@types/pako'
     version: 2.0.0
+    dev: true
+
+  registry.npmmirror.com/@types/sharedworker/0.0.77:
+    resolution: {integrity: sha512-p/X215luEtddfiK7sejK0eaYv/L5u6XYwRwPkwwowzf56hpkeFmuGcuPqXnT0qDpjxUVRp6mVdyPM9uz0ThmhQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/sharedworker/-/sharedworker-0.0.77.tgz}
+    name: '@types/sharedworker'
+    version: 0.0.77
     dev: true
 
   registry.npmmirror.com/@typescript-eslint/eslint-plugin/5.30.0_5mtqsiui4sk53pmkx7i7ue45wm:

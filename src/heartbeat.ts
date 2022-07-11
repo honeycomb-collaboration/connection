@@ -2,7 +2,7 @@ import { HEARTBEAT_INTERVAL, HEARTBEAT_MESSAGE } from '@/constant'
 import { Logger } from '@/logger'
 
 export function Heartbeat(websocket: WebSocket): void {
-    window.setTimeout(() => {
+    setTimeout(() => {
         const logger = new Logger('Heartbeat')
         if (websocket.readyState === WebSocket.OPEN) {
             logger?.debug('PING', HEARTBEAT_MESSAGE.PING)
