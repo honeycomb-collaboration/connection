@@ -1,4 +1,4 @@
-import { DevelopLogger } from '@/logger'
+import { Logger } from '@/logger'
 import { Heartbeat } from '@/heartbeat'
 import { compress, decompress } from '@/compression'
 
@@ -12,7 +12,7 @@ export type ConnectionEvent = 'open' | 'connecting' | 'reconnecting' | 'close'
 
 export class Connection extends EventTarget {
     private static readonly INTERNAL_CLOSE = 'INTERNAL_CLOSE'
-    private static logger = new DevelopLogger()
+    private static logger = new Logger('Connection')
     private ws: WebSocket
     #state: ConnectionState = ConnectionState.CONNECTING
 
@@ -29,43 +29,45 @@ export class Connection extends EventTarget {
     private reconnectCount = 0
 
     private spawnWS(url: string | URL): WebSocket {
-        Connection.logger.debug('Connection', 'spawn WebSocket')
+        Connection.logger.debug('spawn WebSocket')
+        const logger = new Logger('WebSocket')
         this.#state = ConnectionState.CONNECTING
         const ws = new WebSocket(url)
         ws.binaryType = 'arraybuffer'
         ws.onmessage = function (evt) {
             const decompressed = decompress(evt.data)
-            Connection.logger.debug('WebSocket', 'message', evt, decompressed)
+            logger.debug('message', evt, decompressed)
         }
         ws.onerror = function (error) {
-            Connection.logger.error('WebSocket', 'error', error)
+            logger.error('error', error)
         }
         ws.onclose = (evt) => {
             if (evt.reason.startsWith(Connection.INTERNAL_CLOSE)) {
                 return
             }
-            Connection.logger.debug('WebSocket', 'close unintentionally', evt)
+            logger.debug('close unintentionally', evt)
             this.reconnectCount++
             this.dispatch('reconnecting')
             this.spawnWS(url)
         }
         ws.onopen = (evt) => {
-            Connection.logger.debug('WebSocket', 'open', evt)
+            logger.debug('open', evt)
             this.reconnectCount = 0
             this.dispatch('open')
-            return Heartbeat(ws, Connection.logger)
+            return Heartbeat(ws)
         }
         this.ws = ws
         return ws
     }
 
     public send(data: string | Uint8Array | ArrayBuffer): void {
+        Connection.logger.debug('send', data)
         const compressed = compress(data)
         this.ws.send(compressed)
     }
 
     public close(code?: number, reason?: string): void {
-        Connection.logger.info('Connection', 'close intentionally', {
+        Connection.logger.info('close intentionally', {
             code,
             reason,
         })
@@ -78,17 +80,12 @@ export class Connection extends EventTarget {
         type: ConnectionEvent,
         callback: (event: Event) => unknown
     ) {
-        Connection.logger.debug(
-            'Connection',
-            'addEventListener',
-            type,
-            callback
-        )
+        Connection.logger.debug('addEventListener', type, callback)
         super.addEventListener(type, callback)
     }
 
     private dispatch(eventType: ConnectionEvent): boolean {
-        Connection.logger.debug('Connection', 'event', eventType)
+        Connection.logger.debug('event', eventType)
         return super.dispatchEvent(new Event(eventType))
     }
 }

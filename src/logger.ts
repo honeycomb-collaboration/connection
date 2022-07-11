@@ -4,35 +4,37 @@ enum Level {
     error = 2,
 }
 
-export class DevelopLogger {
+export class Logger {
     public level: Level
+    public readonly label: string
 
-    constructor(level: Level = Level.debug) {
+    constructor(label: string, level: Level = Level.debug) {
         this.level = level
+        this.label = label
     }
 
     public setLevel(level: Level) {
         this.level = level
     }
 
-    public debug(label: string, ...args: unknown[]) {
+    public debug(...args: unknown[]) {
         if (this.level > Level.debug) {
             return
         }
-        console.debug(...args)
+        console.debug(`[${this.label}]`, ...args)
     }
 
-    public info(label: string, ...args: unknown[]) {
+    public info(...args: unknown[]) {
         if (this.level > Level.info) {
             return
         }
-        console.info(...args)
+        console.info(`[${this.label}]`, ...args)
     }
 
-    public error(label: string, ...args: unknown[]) {
+    public error(...args: unknown[]) {
         if (this.level > Level.error) {
             return
         }
-        console.error(...args)
+        console.error(`[${this.label}]`, ...args)
     }
 }
