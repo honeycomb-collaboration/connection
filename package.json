@@ -1,8 +1,19 @@
 {
   "name": "@honeycomb/websocket",
   "version": "0.0.1",
+  "type": "module",
+  "files": ["dist"],
+  "main": "./dist/websocket.umd.cjs",
+  "module": "./dist/websocket.js",
+  "exports": {
+    ".": {
+      "import": "./dist/websocket.js",
+      "require": "./dist/websocket.umd.cjs"
+    }
+  },
   "scripts": {
     "dev": "vite dev",
+    "build": "vite build",
     "test": "vitest"
   },
   "author": "",
