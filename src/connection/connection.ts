@@ -1,6 +1,7 @@
-import { Logger } from '@/logger'
-import { Heartbeat } from '@/heartbeat'
-import { compress, decompress } from '@/compression'
+import { Logger } from '@/logger/logger'
+import { Heartbeat } from '@/connection/heartbeat'
+import { compress, decompress } from '@/connection/compression'
+import { bufferToString } from '@/utils/buffer'
 
 export enum ConnectionState {
     CONNECTING = 'CONNECTING', // CONNECTING  The connection is not yet open.
@@ -20,23 +21,34 @@ export class Connection extends EventTarget {
         return this.#state
     }
 
-    constructor(url: string | URL) {
+    constructor(
+        url: string | URL,
+        messageHandler: (message: string) => unknown
+    ) {
         super()
         this.dispatch('connecting')
-        this.ws = this.spawnWS(url)
+        this.ws = this.spawnWS(url, messageHandler)
     }
 
     private reconnectCount = 0
 
-    private spawnWS(url: string | URL): WebSocket {
+    private spawnWS(
+        url: string | URL,
+        messageHandler: (message: string) => unknown
+    ): WebSocket {
         Connection.logger.debug('spawn WebSocket')
         const logger = new Logger('WebSocket')
         this.#state = ConnectionState.CONNECTING
         const ws = new WebSocket(url)
         ws.binaryType = 'arraybuffer'
-        ws.onmessage = function (evt) {
+        ws.onmessage = async function (evt) {
+            if (evt.data.byteLength === 0) {
+                logger.debug('PONG')
+                return
+            }
             const decompressed = decompress(evt.data)
             logger.debug('message', evt, decompressed)
+            messageHandler(await bufferToString(decompressed.buffer))
         }
         ws.onerror = function (error) {
             logger.error('error', error)
@@ -48,7 +60,7 @@ export class Connection extends EventTarget {
             logger.debug('close unintentionally', evt)
             this.reconnectCount++
             this.dispatch('reconnecting')
-            this.spawnWS(url)
+            this.spawnWS(url, messageHandler)
         }
         ws.onopen = (evt) => {
             logger.debug('open', evt)

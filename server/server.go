@@ -33,6 +33,12 @@ func handler(responseWriter http.ResponseWriter, request *http.Request) {
 				}
 				log.Println("websocket read message:", rawBytes)
 
+				if len(rawBytes) <= 1 {
+					// PONG
+					_ = conn.WriteMessage(messageType, []byte{})
+					continue
+				}
+
 				// echo
 				_ = conn.WriteMessage(messageType, rawBytes)
 			}

@@ -7,12 +7,17 @@
 </head>
 <body>
 <div id="app"></div>
-<script type="module" src="/src/main.ts"></script>
 <script type="module">
-  import { Connection } from "./src/main.ts";
+  import { Socket } from "./src/index.ts";
 
-  const con = new Connection("ws://localhost:9527/ws");
-  console.log(con);
+  const app = document.querySelector("#app");
+  const soc = new Socket("ws://localhost:9527/ws", (message) => {
+    app.innerText = `${(new Date()).toLocaleTimeString()}\t${message}`;
+  });
+  (function sayHello() {
+    soc.send("hello" + (new Date()).toLocaleTimeString());
+    setTimeout(sayHello, 2000);
+  })();
 </script>
 </body>
 </html>
