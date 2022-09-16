@@ -1,4 +1,4 @@
-module honeycomb/websocket
+module github.com/OnlineCollaboration/connection/server
 
 go 1.18
 

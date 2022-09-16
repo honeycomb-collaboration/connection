@@ -1,6 +1,6 @@
-# websocket
+# Connection
 
-WebSocket lib for honeycomb apps.
+Connection lib for honeycomb apps.
 
 ## Develop
 

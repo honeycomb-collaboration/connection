@@ -6,7 +6,7 @@ export default defineConfig({
         lib: {
             entry: resolve(__dirname, 'src/index.ts'),
             formats: ['cjs', 'es'],
-            fileName: 'websocket',
+            fileName: 'connection',
         },
     },
     resolve: {

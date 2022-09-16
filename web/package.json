@@ -1,14 +1,14 @@
 {
-  "name": "@honeycomb/websocket",
+  "name": "@honeycomb/connection",
   "version": "0.0.1",
   "type": "module",
   "files": ["dist"],
-  "main": "./dist/websocket.cjs",
-  "module": "./dist/websocket.js",
+  "main": "./dist/connection.cjs",
+  "module": "./dist/connection.js",
   "exports": {
     ".": {
-      "import": "./dist/websocket.js",
-      "require": "./dist/websocket.cjs"
+      "import": "./dist/connection.js",
+      "require": "./dist/connection.cjs"
     }
   },
   "scripts": {

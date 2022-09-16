@@ -2,7 +2,7 @@ const sharedWorker = new SharedWorker(
     new URL('./sharedworker/sharedworker.ts', import.meta.url),
     {
         type: 'module',
-        name: 'honeycomb-websocket',
+        name: 'honeycomb-connection',
     }
 )
 
