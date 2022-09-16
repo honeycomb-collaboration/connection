@@ -1,5 +1,5 @@
 {
-  "name": "@honeycomb/connection",
+  "name": "@honeycomb-co/connection",
   "version": "0.0.1",
   "type": "module",
   "files": ["dist"],
@@ -16,7 +16,8 @@
     "build": "vite build",
     "test": "vitest"
   },
-  "author": "",
+  "author": "Naeemo <naeemo@qq.com>",
+  "private": false,
   "license": "Apache License 2.0",
   "devDependencies": {
     "@types/node": "^18.0.0",
