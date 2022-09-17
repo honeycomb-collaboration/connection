@@ -4,7 +4,7 @@ import { Connection, ConnectionState } from '@/connection/connection'
 describe('Connection', function () {
     it('basic', async () =>
         new Promise<void>(function (resolve) {
-            const con = new Connection('ws://localhost:9527/ws', (message) => {
+            const con = new Connection('ws://localhost:9898/ws', (message) => {
                 console.debug(message)
             })
             expect(con).toBeInstanceOf(Connection)

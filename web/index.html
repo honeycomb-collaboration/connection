@@ -11,7 +11,7 @@
   import { Socket } from "./src/index.ts";
 
   const app = document.querySelector("#app");
-  const soc = new Socket("ws://localhost:9527/ws", (message) => {
+  const soc = new Socket("ws://localhost:9898/ws", (message) => {
     app.innerText = `${(new Date()).toLocaleTimeString()}\t${message}`;
   });
   (function sayHello() {

@@ -17,7 +17,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func handler(responseWriter http.ResponseWriter, request *http.Request) {
+func Handle(responseWriter http.ResponseWriter, request *http.Request) {
 	log.Println("WebSocket new connection: " + request.Host)
 	if conn, err := upgrader.Upgrade(responseWriter, request, nil); err == nil {
 		// Set message size limit
@@ -44,16 +44,4 @@ func handler(responseWriter http.ResponseWriter, request *http.Request) {
 			}
 		}()
 	}
-}
-
-func Start(path string) {
-	http.HandleFunc(path, handler)
-	log.Printf(`
-================================================================================
-
-WebSocket service listening: %s
-Connection@Honeycomb
-
-================================================================================
-	`, path)
 }
