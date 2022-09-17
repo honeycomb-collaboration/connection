@@ -1,6 +1,5 @@
 import { Logger } from '@/logger/logger'
 import { Heartbeat } from '@/connection/heartbeat'
-import { compress, decompress } from '@/connection/compression'
 import { bufferToString } from '@/utils/buffer'
 
 export enum ConnectionState {
@@ -46,9 +45,8 @@ export class Connection extends EventTarget {
                 logger.debug('PONG')
                 return
             }
-            const decompressed = decompress(evt.data)
-            logger.debug('message', evt, decompressed)
-            messageHandler(await bufferToString(decompressed.buffer))
+            logger.debug('message', evt, evt.data)
+            messageHandler(await bufferToString(evt.data.buffer))
         }
         ws.onerror = function (error) {
             logger.error('error', error)
@@ -74,8 +72,7 @@ export class Connection extends EventTarget {
 
     public send(data: string | ArrayBufferLike): void {
         Connection.logger.debug('send', data)
-        const compressed = compress(data)
-        this.ws.send(compressed)
+        this.ws.send(data)
     }
 
     public close(code?: number, reason?: string): void {

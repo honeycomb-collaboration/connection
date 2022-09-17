@@ -1,8 +1,6 @@
 package connection
 
 import (
-	"bytes"
-	"compress/gzip"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -43,7 +41,6 @@ func Handle(responseWriter http.ResponseWriter, request *http.Request) (con *Con
 				if err != nil {
 					log.Println("websocket read error:", err)
 					close(incoming)
-					close(outgoing)
 					break
 				}
 
@@ -54,27 +51,7 @@ func Handle(responseWriter http.ResponseWriter, request *http.Request) (con *Con
 					continue
 				}
 
-				buf := bytes.NewBuffer(rawBytes)
-				decompressReader, err := gzip.NewReader(buf)
-				if err != nil {
-					log.Println("websocket decompress error:", err)
-					close(incoming)
-					close(outgoing)
-					break
-				}
-
-				var resB bytes.Buffer
-				_, err = resB.ReadFrom(decompressReader)
-				if err != nil {
-					log.Println("websocket read decompress error:", err)
-					close(incoming)
-					close(outgoing)
-					return
-				}
-
-				messageBytes := resB.Bytes()
-
-				incoming <- &messageBytes
+				incoming <- &rawBytes
 			}
 		}()
 
@@ -84,7 +61,6 @@ func Handle(responseWriter http.ResponseWriter, request *http.Request) (con *Con
 				msg := <-outgoing
 				if err := wsConn.WriteMessage(websocket.BinaryMessage, *msg); err != nil {
 					log.Println("websocket write error:", err)
-					close(incoming)
 					close(outgoing)
 					break
 				}

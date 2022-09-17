@@ -2,7 +2,9 @@
   "name": "@honeycomb-co/connection",
   "version": "0.0.4",
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "main": "./dist/connection.cjs",
   "module": "./dist/connection.js",
   "exports": {
@@ -21,7 +23,6 @@
   "license": "Apache License 2.0",
   "devDependencies": {
     "@types/node": "^18.0.0",
-    "@types/pako": "^2.0.0",
     "@types/sharedworker": "^0.0.77",
     "@typescript-eslint/eslint-plugin": "^5.30.0",
     "@typescript-eslint/parser": "^5.30.0",
@@ -46,8 +47,5 @@
       "eslint --fix",
       "prettier --write"
     ]
-  },
-  "dependencies": {
-    "pako": "^2.0.4"
   }
 }

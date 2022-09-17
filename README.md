@@ -11,7 +11,6 @@ Connection lib for honeycomb apps.
 - [x] heartbeat
 - [ ] authentication
 - [ ] encryption
-- [x] gzip compression
 - [ ] live in a SharedWorker
 
 ---
