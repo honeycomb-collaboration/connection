@@ -15,7 +15,8 @@
     app.innerText = `${(new Date()).toLocaleTimeString()}\t${message}`;
   });
   (function sayHello() {
-    soc.send("hello" + (new Date()).toLocaleTimeString());
+    const dtf = new Intl.DateTimeFormat('zh-CN', {dateStyle: "short", timeStyle: 'medium'})
+    soc.send(`hello, server! ${dtf.format(new Date())}`);
     setTimeout(sayHello, 2000);
   })();
 </script>

@@ -72,7 +72,7 @@ export class Connection extends EventTarget {
         return ws
     }
 
-    public send(data: string | Uint8Array | ArrayBuffer): void {
+    public send(data: string | ArrayBufferLike): void {
         Connection.logger.debug('send', data)
         const compressed = compress(data)
         this.ws.send(compressed)

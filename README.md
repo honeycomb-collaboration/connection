@@ -12,11 +12,6 @@ Connection lib for honeycomb apps.
 - [ ] authentication
 - [ ] encryption
 - [x] gzip compression
-- [ ] payload compression using [Cap’n Proto] or [Protocol Buffers]
 - [ ] live in a SharedWorker
 
 ---
-
-[Cap’n Proto]: https://capnproto.org/otherlang.html
-
-[Protocol Buffers]: https://developers.google.com/protocol-buffers
