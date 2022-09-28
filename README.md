@@ -10,6 +10,6 @@ Connection lib for honeycomb apps.
 - [x] develop logger
 - [x] heartbeat
 - [ ] encryption
-- [ ] live in a SharedWorker
+- [x] live in a SharedWorker
 
 ---

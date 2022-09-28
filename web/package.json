@@ -4,10 +4,12 @@
   "type": "module",
   "files": [
     "dist",
-    "src"
+    "src",
+    "tsconfig.json"
   ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
+  "types": "./src/index.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
