@@ -1,4 +1,4 @@
-import { HEARTBEAT_INTERVAL, HEARTBEAT_MESSAGE } from '@/constant'
+import { HEARTBEAT_INTERVAL, HEARTBEAT_MESSAGE } from '@/constant/constant'
 import { Logger } from '@/logger/logger'
 
 export function Heartbeat(websocket: WebSocket): void {

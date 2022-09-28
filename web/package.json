@@ -3,19 +3,27 @@
   "version": "0.0.5",
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
-  "main": "./dist/connection.cjs",
-  "module": "./dist/connection.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "exports": {
     ".": {
-      "import": "./dist/connection.js",
-      "require": "./dist/connection.cjs"
-    }
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./src/index.ts"
+    },
+    "./sharedworker": {
+      "import": "./dist/sharedworker.js",
+      "require": "./dist/sharedworker.cjs",
+      "types": "./src/sharedworker.ts"
+    },
+    "./dist/*": "./dist/*"
   },
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "vite build && vite build --mode sharedworker",
     "test": "vitest"
   },
   "author": "Naeemo <naeemo@qq.com>",

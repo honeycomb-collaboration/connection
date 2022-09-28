@@ -9,7 +9,6 @@ Connection lib for honeycomb apps.
 - [x] automatically reconnection
 - [x] develop logger
 - [x] heartbeat
-- [ ] authentication
 - [ ] encryption
 - [ ] live in a SharedWorker
 

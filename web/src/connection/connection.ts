@@ -14,10 +14,10 @@ export class Connection extends EventTarget {
     private static readonly INTERNAL_CLOSE = 'INTERNAL_CLOSE'
     private static logger = new Logger('Connection')
     private ws: WebSocket
-    #state: ConnectionState = ConnectionState.CONNECTING
+    _state: ConnectionState = ConnectionState.CONNECTING
 
     public get state(): ConnectionState {
-        return this.#state
+        return this._state
     }
 
     constructor(
@@ -37,7 +37,7 @@ export class Connection extends EventTarget {
     ): WebSocket {
         Connection.logger.debug('spawn WebSocket')
         const logger = new Logger('WebSocket')
-        this.#state = ConnectionState.CONNECTING
+        this._state = ConnectionState.CONNECTING
         const ws = new WebSocket(url)
         ws.binaryType = 'arraybuffer'
         ws.onmessage = async function (evt) {
@@ -46,7 +46,7 @@ export class Connection extends EventTarget {
                 return
             }
             logger.debug('message', evt, evt.data)
-            messageHandler(await bufferToString(evt.data.buffer))
+            messageHandler(await bufferToString(evt.data))
         }
         ws.onerror = function (error) {
             logger.error('error', error)
@@ -80,7 +80,7 @@ export class Connection extends EventTarget {
             code,
             reason,
         })
-        this.#state = ConnectionState.CLOSED
+        this._state = ConnectionState.CLOSED
         this.dispatch('close')
         this.ws.close(code, Connection.INTERNAL_CLOSE + reason)
     }

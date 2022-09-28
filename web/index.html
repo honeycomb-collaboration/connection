@@ -8,15 +8,16 @@
 <body>
 <div id="app"></div>
 <script type="module">
-  import { Socket } from "./src/index.ts";
+  import { Connection, workerWrap } from "./src/index.ts";
+  const Socket = workerWrap('./src/sharedworker.ts')
 
   const app = document.querySelector("#app");
-  const soc = new Socket("ws://localhost:9898/v1/ws", (message) => {
+  const con = new Socket("ws://localhost:9898/v1/spreadsheets/ws", (message) => {
     app.innerText = `${(new Date()).toLocaleTimeString()}\t${message}`;
   });
   (function sayHello() {
     const dtf = new Intl.DateTimeFormat('zh-CN', {dateStyle: "short", timeStyle: 'medium'})
-    soc.send(`hello, server! ${dtf.format(new Date())}`);
+    con.send(`hello, server! ${dtf.format(new Date())}`);
     setTimeout(sayHello, 2000);
   })();
 </script>

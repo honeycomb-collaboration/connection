@@ -1,13 +1,22 @@
 import { defineConfig } from 'vitest/config'
 import { join, resolve } from 'path'
 
-export default defineConfig({
+export default defineConfig((env) => ({
     build: {
-        lib: {
-            entry: resolve(__dirname, 'src/index.ts'),
-            formats: ['cjs', 'es'],
-            fileName: 'connection',
-        },
+        lib:
+            env.mode === 'sharedworker'
+                ? {
+                      entry: resolve(__dirname, 'src/sharedworker.ts'),
+                      formats: ['cjs', 'es'],
+                      fileName: 'sharedworker',
+                  }
+                : {
+                      entry: resolve(__dirname, 'src/index.ts'),
+                      formats: ['cjs', 'es'],
+                      fileName: 'index',
+                  },
+        sourcemap: true,
+        emptyOutDir: env.mode !== 'sharedworker',
     },
     resolve: {
         alias: [
@@ -20,4 +29,4 @@ export default defineConfig({
     test: {
         environment: 'jsdom',
     },
-})
+}))
