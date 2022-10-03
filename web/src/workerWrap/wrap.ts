@@ -1,3 +1,6 @@
+import { bufferToString, stringToBuffer } from '@/utils/buffer'
+import type { MessagePortData } from '@/workerWrap/data'
+
 export function workerWrap(workerUrl: string) {
     const sharedWorker = new SharedWorker(workerUrl, {
         type: 'module',
@@ -5,18 +8,30 @@ export function workerWrap(workerUrl: string) {
     })
 
     return class Socket {
+        private readonly url: string
+        private readonly portMessageHandler
+
         constructor(url: string, messageHandler: (message: string) => unknown) {
-            sharedWorker.port.postMessage({ t: 'init', d: url })
-            sharedWorker.port.onmessage = (evt) => {
-                messageHandler(evt.data)
+            this.url = url
+            this.portMessageHandler = (evt: MessageEvent<MessagePortData>) => {
+                const { url, payload } = evt.data
+
+                if (url === this.url) {
+                    bufferToString(payload).then((str) => {
+                        messageHandler(str)
+                    })
+                }
             }
+            sharedWorker.port.addEventListener(
+                'message',
+                this.portMessageHandler
+            )
+            sharedWorker.port.start()
         }
 
         public sendBuffer(buf: ArrayBufferLike): void {
-            sharedWorker.port.postMessage(
-                { t: 'buffer-message', d: buf },
-                { transfer: [buf] }
-            )
+            const data: MessagePortData = { url: this.url, payload: buf }
+            sharedWorker.port.postMessage(data, { transfer: [data.payload] })
         }
 
         public sendBufferView(bufView: ArrayBufferView): void {
@@ -31,7 +46,16 @@ export function workerWrap(workerUrl: string) {
         }
 
         public send(message: string): void {
-            sharedWorker.port.postMessage({ t: 'string-message', d: message })
+            stringToBuffer(message).then((buf) => {
+                this.sendBuffer(buf)
+            })
+        }
+
+        public close(): void {
+            sharedWorker.port.removeEventListener(
+                'message',
+                this.portMessageHandler
+            )
         }
     }
 }

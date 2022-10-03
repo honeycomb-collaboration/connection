@@ -1,33 +1,35 @@
 import { Logger } from '@/logger/logger'
 import { Connection } from '@/connection/connection'
+import type { MessagePortData } from '@/workerWrap/data'
 
 const logger = new Logger('SharedWorkerGlobal')
 
-// Url to MessagePort map, an url can be shared between multiple MessagePorts
 const urlToPorts = new Map<string, Set<MessagePort>>()
-// MessagePort to Connection map, a message port uses at most one connection, for now.
-const portToConn = new WeakMap<MessagePort, Connection>()
+const urlToConn = new Map<string, Connection>()
 
 /**
  * Initialize the connection to an url if necessary
  * @param url
  * @param port
  */
-function initConnection(url: string, port: MessagePort) {
-    const preConn = portToConn.get(port)
+function initConnection(url: string, port: MessagePort): Connection {
+    let conn: Connection
+    const preConn = urlToConn.get(url)
     if (preConn) {
-        return preConn
+        conn = preConn
+    } else {
+        conn = new Connection(url, (message: ArrayBufferLike) =>
+            handleServerMessage(message, url)
+        )
+        urlToConn.set(url, conn)
     }
     const ports = urlToPorts.get(url)
-    const conn = new Connection(url, (message: string) =>
-        handleServerMessage(message, url)
-    )
     if (ports) {
         ports.add(port)
     } else {
         urlToPorts.set(url, new Set([port]))
     }
-    portToConn.set(port, conn)
+    return conn
 }
 
 /**
@@ -38,8 +40,6 @@ function initConnection(url: string, port: MessagePort) {
 function onPortMessageError(port: MessagePort, messageEvent: MessageEvent) {
     logger.error('port error', port, messageEvent)
     port.close()
-    const conn = portToConn.get(port)
-    portToConn.delete(port)
 
     urlToPorts.forEach((portSet, url) => {
         if (!portSet.has(port)) {
@@ -48,7 +48,9 @@ function onPortMessageError(port: MessagePort, messageEvent: MessageEvent) {
         portSet.delete(port)
         if (portSet.size === 0) {
             urlToPorts.delete(url)
+            const conn = urlToConn.get(url)
             conn?.close()
+            urlToConn.delete(url)
         }
     })
 }
@@ -58,40 +60,26 @@ function onPortMessageError(port: MessagePort, messageEvent: MessageEvent) {
  * @param message
  * @param url
  */
-function handleServerMessage(message: string, url: string) {
+function handleServerMessage(message: ArrayBufferLike, url: string) {
     logger.info('handle conn message', message, url)
+    const mpd: MessagePortData = { url, payload: message }
     const ports = urlToPorts.get(url)
     ports?.forEach((port) => {
-        port.postMessage(message)
+        port.postMessage(mpd)
     })
-}
-
-/**
- * Send message to server
- * @param port
- * @param message
- */
-function sendMessage(port: MessagePort, message: string | ArrayBufferLike) {
-    const conn = portToConn.get(port)
-    if (conn) {
-        conn.send(message)
-    } else {
-        logger.error('send before init', message)
-    }
 }
 
 onconnect = function (evt) {
     logger.debug('onconnect', evt)
     for (const port of evt.ports) {
         port.onmessageerror = (evt) => onPortMessageError(port, evt)
-        port.onmessage = function (messageEvent) {
+        port.onmessage = function (
+            messageEvent: MessageEvent<MessagePortData>
+        ) {
             logger.debug('port message', port, messageEvent.data)
-            if (messageEvent.data.t === 'init') {
-                const url = messageEvent.data.d
-                initConnection(url, port)
-            } else {
-                sendMessage(port, messageEvent.data.d)
-            }
+            const { url, payload } = messageEvent.data
+            const conn = initConnection(url, port)
+            conn.send(payload)
         }
     }
 }

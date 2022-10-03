@@ -1,6 +1,5 @@
 import { Logger } from '@/logger/logger'
 import { Heartbeat } from '@/connection/heartbeat'
-import { bufferToString } from '@/utils/buffer'
 
 export enum ConnectionState {
     CONNECTING = 'CONNECTING', // CONNECTING  The connection is not yet open.
@@ -22,7 +21,7 @@ export class Connection extends EventTarget {
 
     constructor(
         url: string | URL,
-        messageHandler: (message: string) => unknown
+        messageHandler: (message: ArrayBufferLike) => unknown
     ) {
         super()
         this.dispatch('connecting')
@@ -33,20 +32,20 @@ export class Connection extends EventTarget {
 
     private spawnWS(
         url: string | URL,
-        messageHandler: (message: string) => unknown
+        messageHandler: (message: ArrayBufferLike) => unknown
     ): WebSocket {
         Connection.logger.debug('spawn WebSocket')
         const logger = new Logger('WebSocket')
         this._state = ConnectionState.CONNECTING
         const ws = new WebSocket(url)
         ws.binaryType = 'arraybuffer'
-        ws.onmessage = async function (evt) {
+        ws.onmessage = function (evt) {
             if (evt.data.byteLength === 0) {
                 logger.debug('PONG')
                 return
             }
             logger.debug('message', evt, evt.data)
-            messageHandler(await bufferToString(evt.data))
+            messageHandler(evt.data)
         }
         ws.onerror = function (error) {
             logger.error('error', error)
