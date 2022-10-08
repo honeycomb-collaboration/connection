@@ -11,13 +11,10 @@ export type ConnectionEvent = 'open' | 'connecting' | 'reconnecting' | 'close'
 
 export class Connection extends EventTarget {
     private static readonly INTERNAL_CLOSE = 'INTERNAL_CLOSE'
-    private static logger = new Logger('Connection')
+    private static readonly logger = new Logger('Connection')
+    private readonly heartbeat: Heartbeat = new Heartbeat()
     private ws: WebSocket
-    _state: ConnectionState = ConnectionState.CONNECTING
-
-    public get state(): ConnectionState {
-        return this._state
-    }
+    private reconnectCount = 0
 
     constructor(
         url: string | URL,
@@ -28,7 +25,35 @@ export class Connection extends EventTarget {
         this.ws = this.spawnWS(url, messageHandler)
     }
 
-    private reconnectCount = 0
+    _state: ConnectionState = ConnectionState.CONNECTING
+
+    public get state(): ConnectionState {
+        return this._state
+    }
+
+    public send(data: string | ArrayBufferLike): void {
+        Connection.logger.debug('send', data)
+        this.ws.send(data)
+        this.heartbeat.reset(this.ws, 'just sent some data')
+    }
+
+    public close(code?: number, reason?: string): void {
+        Connection.logger.info('close intentionally', {
+            code,
+            reason,
+        })
+        this._state = ConnectionState.CLOSED
+        this.dispatch('close')
+        this.ws.close(code, Connection.INTERNAL_CLOSE + reason)
+    }
+
+    public addEventListener(
+        type: ConnectionEvent,
+        callback: (event: Event) => unknown
+    ) {
+        Connection.logger.debug('addEventListener', type, callback)
+        super.addEventListener(type, callback)
+    }
 
     private spawnWS(
         url: string | URL,
@@ -63,33 +88,10 @@ export class Connection extends EventTarget {
             logger.debug('open', evt)
             this.reconnectCount = 0
             this.dispatch('open')
-            return Heartbeat(ws)
+            this.heartbeat.start(ws)
         }
         this.ws = ws
         return ws
-    }
-
-    public send(data: string | ArrayBufferLike): void {
-        Connection.logger.debug('send', data)
-        this.ws.send(data)
-    }
-
-    public close(code?: number, reason?: string): void {
-        Connection.logger.info('close intentionally', {
-            code,
-            reason,
-        })
-        this._state = ConnectionState.CLOSED
-        this.dispatch('close')
-        this.ws.close(code, Connection.INTERNAL_CLOSE + reason)
-    }
-
-    public addEventListener(
-        type: ConnectionEvent,
-        callback: (event: Event) => unknown
-    ) {
-        Connection.logger.debug('addEventListener', type, callback)
-        super.addEventListener(type, callback)
     }
 
     private dispatch(eventType: ConnectionEvent): boolean {
