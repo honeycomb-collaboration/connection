@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Connection, ConnectionState } from '@/connection/connection'
+import { Connection } from '@/connection/connection'
 
 describe('Connection', function () {
     it('basic', async () =>
@@ -11,9 +11,5 @@ describe('Connection', function () {
                 }
             )
             expect(con).toBeInstanceOf(Connection)
-            con.addEventListener('open', () => {
-                expect(con.state).not.toEqual(ConnectionState.CONNECTING)
-                resolve()
-            })
         }))
 })
