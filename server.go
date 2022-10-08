@@ -1,12 +1,14 @@
 package connection
 
 import (
+	"context"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 )
 
 const maxMessageSizeBytes = 2 * 1024 * 1024
+const messageBufferCount = 10
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:    4096,
@@ -22,56 +24,61 @@ type Connection struct {
 	OutgoingMessage chan<- *[]byte
 }
 
-func Handle(responseWriter http.ResponseWriter, request *http.Request) (con *Connection, err error) {
+func Handle(ctx context.Context, responseWriter http.ResponseWriter, request *http.Request, handler func(con *Connection)) error {
 	log.Println("WebSocket new connection: " + request.Host)
-	if wsConn, err := upgrader.Upgrade(responseWriter, request, nil); err == nil {
-		// Set message size limit
-		wsConn.SetReadLimit(maxMessageSizeBytes)
 
-		incoming := make(chan *[]byte)
-		outgoing := make(chan *[]byte)
-
-		// Read
-		go func() {
-			// TODO authentication
-			log.Println("WebSocket Authenticate ok")
-
-			for {
-				messageType, rawBytes, err := wsConn.ReadMessage()
-				if err != nil {
-					log.Println("websocket read error:", err)
-					close(incoming)
-					break
-				}
-
-				if len(rawBytes) <= 1 {
-					// PONG
-					_ = wsConn.WriteMessage(messageType, []byte{})
-					log.Println("websocket receive Heartbeat")
-					continue
-				}
-
-				incoming <- &rawBytes
-			}
-		}()
-
-		// Write
-		go func() {
-			for {
-				msg := <-outgoing
-				if err := wsConn.WriteMessage(websocket.BinaryMessage, *msg); err != nil {
-					log.Println("websocket write error:", err)
-					close(outgoing)
-					break
-				}
-			}
-		}()
-
-		return &Connection{
-			IncomingMessage: incoming,
-			OutgoingMessage: outgoing,
-		}, nil
+	wsConn, err := upgrader.Upgrade(responseWriter, request, nil)
+	if err != nil {
+		return err
 	}
 
-	return nil, err
+	// Set message size limit
+	wsConn.SetReadLimit(maxMessageSizeBytes)
+
+	incoming := make(chan *[]byte, messageBufferCount)
+	outgoing := make(chan *[]byte, messageBufferCount)
+	defer close(incoming)
+	defer close(outgoing)
+
+	// Read
+	go func() {
+		for {
+			_, rawBytes, err := wsConn.ReadMessage()
+			if err != nil {
+				log.Println("websocket read error:", err)
+				break
+			}
+
+			if len(rawBytes) <= 1 {
+				// PONG
+				outgoing <- &[]byte{}
+				log.Println("websocket receive Heartbeat")
+				continue
+			}
+
+			incoming <- &rawBytes
+		}
+	}()
+
+	// Write
+	go func() {
+		for msg := range outgoing {
+			if err := wsConn.WriteMessage(websocket.BinaryMessage, *msg); err != nil {
+				log.Println("websocket write error:", err)
+				break
+			}
+		}
+	}()
+
+	// handle the connection
+	go handler(&Connection{
+		IncomingMessage: incoming,
+		OutgoingMessage: outgoing,
+	})
+
+	select {
+	case <-ctx.Done():
+		log.Println("WebSocket context done: ", ctx.Err())
+		return wsConn.Close()
+	}
 }
