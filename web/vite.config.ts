@@ -5,7 +5,7 @@ export default defineConfig({
     build: {
         lib: {
             entry: {
-                sharedworker: 'src/sharedworker.ts',
+                sharedworker: 'src/sharedworker/sharedworker.ts',
                 index: 'src/index.ts',
             },
         },

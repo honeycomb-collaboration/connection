@@ -1,21 +1,28 @@
 import { Logger } from '@/logger/logger'
 import { Heartbeat } from '@/connection/heartbeat'
 
-export class Connection {
+export interface IConnection {
+    send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void
+
+    close(code?: number, reason?: string): void
+}
+
+export interface ConnectionMessageHandler {
+    (message: ArrayBufferLike): unknown
+}
+
+export class Connection implements IConnection {
     private static readonly INTERNAL_CLOSE = 'INTERNAL_CLOSE'
     private static readonly logger = new Logger('Connection')
     private readonly heartbeat: Heartbeat = new Heartbeat()
     private ws: WebSocket
     private reconnectCount = 0
 
-    constructor(
-        url: string | URL,
-        messageHandler: (message: ArrayBufferLike) => unknown
-    ) {
+    constructor(url: string | URL, messageHandler: ConnectionMessageHandler) {
         this.ws = this.spawnWS(url, messageHandler)
     }
 
-    public send(data: string | ArrayBufferLike): void {
+    public send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void {
         Connection.logger.debug('send', data)
         this.ws.send(data)
         this.heartbeat.reset(this.ws, 'just sent some data')

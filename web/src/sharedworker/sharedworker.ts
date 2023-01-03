@@ -1,6 +1,9 @@
 import { Logger } from '@/logger/logger'
 import { Connection } from '@/connection/connection'
-import type { MessagePortData } from '@/workerWrap/data'
+import type {
+    MessagePortFromWorkerData,
+    MessagePortToWorkerData,
+} from '@/sharedworker/data'
 
 const logger = new Logger('SharedWorkerGlobal')
 
@@ -62,7 +65,7 @@ function onPortMessageError(port: MessagePort, messageEvent: MessageEvent) {
  */
 function handleServerMessage(message: ArrayBufferLike, url: string) {
     logger.info('handle conn message', message, url)
-    const mpd: MessagePortData = { url, payload: message }
+    const mpd: MessagePortFromWorkerData = { url, payload: message }
     const ports = urlToPorts.get(url)
     ports?.forEach((port) => {
         port.postMessage(mpd)
@@ -74,7 +77,7 @@ onconnect = function (evt) {
     for (const port of evt.ports) {
         port.onmessageerror = (evt) => onPortMessageError(port, evt)
         port.onmessage = function (
-            messageEvent: MessageEvent<MessagePortData>
+            messageEvent: MessageEvent<MessagePortToWorkerData>
         ) {
             logger.debug('port message', port, messageEvent.data)
             const { url, payload } = messageEvent.data
