@@ -30,6 +30,7 @@ export function workerWrap(workerUrl: string) {
                 this.portMessageHandler
             )
             sharedWorker.port.start()
+            sharedWorker.port.postMessage({ url: this.url })
         }
 
         public send(

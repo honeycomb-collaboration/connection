@@ -1,6 +1,6 @@
 export interface MessagePortToWorkerData {
     url: string
-    payload: string | ArrayBufferLike | Blob | ArrayBufferView
+    payload?: string | ArrayBufferLike | Blob | ArrayBufferView
 }
 
 export interface MessagePortFromWorkerData {

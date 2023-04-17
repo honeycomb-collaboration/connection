@@ -82,7 +82,9 @@ onconnect = function (evt) {
             logger.debug('port message', port, messageEvent.data)
             const { url, payload } = messageEvent.data
             const conn = initConnection(url, port)
-            conn.send(payload)
+            if (payload !== undefined) {
+                conn.send(payload)
+            }
         }
     }
 }
